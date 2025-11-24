@@ -1,0 +1,65 @@
+name: Deploy Laravel to Hostinger
+
+on:
+  push:
+    branches:
+      - main   # change if your main branch has a different name
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'        # match your Hostinger PHP version
+          extensions: mbstring, intl, pdo_mysql
+          tools: composer
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Copy .env.example to .env
+        run: cp .env.example .env
+
+      - name: Generate app key
+        run: php artisan key:generate
+
+      - name: Cache config and routes
+        run: |
+          php artisan config:cache
+          php artisan route:cache
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install NPM dependencies
+        run: npm ci
+
+      - name: Build assets with Vite
+        run: npm run build
+
+      - name: Prepare deploy artifact
+        run: |
+          mkdir deploy
+          rsync -av --progress ./ ./deploy \
+            --exclude=node_modules \
+            --exclude=.git \
+            --exclude=.github \
+            --exclude=tests
+
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@4.3.4
+        with:
+          server: ${{ secrets.ftp://91.108.107.121 }}
+          username: ${{ secrets.u730056976.darkslategray-ant-827925.hostingersite.com }}
+          password: ${{ secrets.Ronak.@3637 }}
+          port: ${{ secrets.21 }}
+          local-dir: ./deploy
+          server-dir: /public_html/   # or /laravel-app if you use subfolder

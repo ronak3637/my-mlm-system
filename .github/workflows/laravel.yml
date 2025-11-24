@@ -3,7 +3,7 @@ name: Deploy Laravel to Hostinger
 on:
   push:
     branches:
-      - main   # change if your default branch is different
+      - main   # change if your default branch name is different
 
 jobs:
   deploy:
@@ -16,7 +16,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.2'   # match your Hostinger PHP version if different
           extensions: mbstring, intl, pdo_mysql
           tools: composer
 
@@ -54,12 +54,20 @@ jobs:
             --exclude=.github \
             --exclude=tests
 
+      - name: Install lftp
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lftp
+
       - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4
-        with:
-          server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: ${{ secrets.FTP_PORT }}
-          local-dir: ./deploy
-          server-dir: /public_html/
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          lftp -f "
+          open -u $FTP_USERNAME,$FTP_PASSWORD $FTP_HOST
+          set ftp:ssl-allow true
+          mirror -R ./deploy /public_html --delete --verbose
+          bye
+          "

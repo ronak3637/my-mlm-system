@@ -55,11 +55,11 @@ jobs:
             --exclude=tests
 
       - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@4.3.4
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          port: ${{ secrets.FTP_PORT }}
-          local-dir: ./deploy
-          server-dir: /public_html/   # or /laravel-app if you use subfolder
+  uses: SamKirkland/FTP-Deploy-Action@v4
+  with:
+    server: ${{ secrets.FTP_HOST }}
+    username: ${{ secrets.FTP_USERNAME }}
+    password: ${{ secrets.FTP_PASSWORD }}
+    port: ${{ secrets.FTP_PORT }}
+    local-dir: ./deploy
+    server-dir: /public_html/  # or /laravel-app if you use subfolder

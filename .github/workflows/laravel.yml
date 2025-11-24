@@ -57,9 +57,9 @@ jobs:
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@4.3.4
         with:
-          server: ${{ secrets.ftp://91.108.107.121 }}
-          username: ${{ secrets.u730056976.darkslategray-ant-827925.hostingersite.com }}
-          password: ${{ secrets.Ronak.@3637 }}
-          port: ${{ secrets.21 }}
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT }}
           local-dir: ./deploy
           server-dir: /public_html/   # or /laravel-app if you use subfolder
